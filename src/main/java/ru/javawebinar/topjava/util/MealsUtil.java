@@ -30,7 +30,7 @@ public class MealsUtil {
 
         System.out.println(getFilteredWithExcessByCycle(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
         System.out.println(getFilteredWithExcessInOnePass(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
-        System.out.println(getFilteredWithExcessInOnePass2(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
+        System.out.println(getFilteredWithExcessInOnePass2(meals, LocalTime.of(0, 0), LocalTime.of(23, 59), 2000));
     }
 
     public static List<MealTo> getFilteredWithExcess(List<Meal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
@@ -106,6 +106,6 @@ public class MealsUtil {
     }
 
     public static MealTo createWithExcess(Meal meal, boolean excess) {
-        return new MealTo(meal.getDateTime(), meal.getDescription(), meal.getCalories(), excess);
+        return new MealTo(meal.getId(), meal.getDateTime(), meal.getDescription(), meal.getCalories(), excess);
     }
 }
