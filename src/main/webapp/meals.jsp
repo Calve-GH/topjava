@@ -14,6 +14,23 @@
         .excess {
             color: red;
         }
+
+        dl {
+            background: none repeat scroll 0 0 #FAFAFA;
+            margin: 8px 0;
+            padding: 0;
+        }
+
+        dt {
+            display: inline-block;
+            width: 55px;
+        }
+
+        dd {
+            display: inline-block;
+            margin-left: 8px;
+            vertical-align: top;
+        }
     </style>
 </head>
 <body>
@@ -22,6 +39,56 @@
     <h2>Meals</h2>
     <a href="meals?action=create">Add Meal</a>
     <hr/>
+    <form method="get" action="meals">
+        <input type="hidden" name="action" value="uid">
+        <select name="user">
+            <option value="USER1" id="1" selected>USER1
+            <option value="ADMIN" id="2">ADMIN
+            <option value="USER2" id="3">USER2
+        </select>
+        <input type="submit" value="change">
+    </form>
+    <form method="get" action="meals">
+        <input type="hidden" name="action" value="filter">
+        <table border="1" cellpadding="8" cellspacing="0">
+            <tr>
+                <td>
+                    <dl>
+                        <dt>DateStart:</dt>
+                        <dd><input type="date" name="ds" value=""></dd>
+                    </dl>
+                </td>
+                <td>
+                    <dl>
+                        <dt>DateEnd:</dt>
+                        <dd><input type="date" value="" name="de"></dd>
+                    </dl>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <dl>
+                        <dt>TimeStart:</dt>
+                        <dd><input type="time" value="" name="ts"></dd>
+                    </dl>
+                </td>
+                <td>
+                    <dl>
+                        <dt>TimeEnd:</dt>
+                        <dd><input type="time" value="" name="te"></dd>
+                    </dl>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td>
+                    <input type="submit" value="Filter">
+                </td>
+            </tr>
+        </table>
+    </form>
+
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
         <tr>
@@ -33,7 +100,7 @@
         </tr>
         </thead>
         <c:forEach items="${meals}" var="meal">
-            <jsp:useBean id="meal" scope="page" type="ru.javawebinar.topjava.model.MealTo"/>
+            <jsp:useBean id="meal" scope="page" type="ru.javawebinar.topjava.to.MealTo"/>
             <tr class="${meal.excess ? 'excess' : 'normal'}">
                 <td>
                         <%--${meal.dateTime.toLocalDate()} ${meal.dateTime.toLocalTime()}--%>
