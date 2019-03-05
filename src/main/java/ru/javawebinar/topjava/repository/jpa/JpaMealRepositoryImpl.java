@@ -4,41 +4,38 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.MealRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 @Transactional(readOnly = true)
 public class JpaMealRepositoryImpl implements MealRepository {
 
-    private final Map<String, Object> map = new HashMap<>();
-
     @PersistenceContext
     private EntityManager em;
 
     @Override
+    @Transactional
     public Meal save(Meal meal, int userId) {
+        User ref = em.getReference(User.class, userId);
         if (meal.isNew()) {
+            meal.setUser(ref);
             em.persist(meal);
             return meal;
         } else {
-            return DataAccessUtils.singleResult(em.createNamedQuery(Meal.UPDATE, Meal.class)
-                    .setParameter("description", meal.getDescription())
-                    .setParameter("calories", meal.getCalories())
-                    .setParameter("date_time", meal.getDateTime())
-                    .setParameter("id", meal.getId())
-                    .setParameter("user_id", userId)
-                    .getResultList());
+            if (ref.getId().equals(meal.getUser().getId()))
+                return em.merge(meal);
         }
+        return null;
     }
 
     @Override
+    @Transactional
     public boolean delete(int id, int userId) {
         return em.createNamedQuery(Meal.DELETE)
                 .setParameter("id", id)
@@ -48,26 +45,24 @@ public class JpaMealRepositoryImpl implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        return em.find(Meal.class, id, setUserIdToQuery(userId));
-        //em.createNamedQuery(Meal.READ)
-
+        List<Meal> res = em.createNamedQuery(Meal.READ, Meal.class)
+                .setParameter("id", id)
+                .setParameter("user_id", userId)
+                .getResultList();
+        return DataAccessUtils.singleResult(res);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return em.createNamedQuery(Meal.ALL_SORTED, Meal.class).getResultList();
+        return em.createNamedQuery(Meal.ALL_SORTED, Meal.class).setParameter("user_id", userId).getResultList();
     }
 
     @Override
     public List<Meal> getBetween(LocalDateTime startDate, LocalDateTime endDate, int userId) {
-        return em.createNamedQuery(Meal.ALL_BETWEEN, Meal.class).setParameter(1, userId)
-                .setParameter(2, startDate).setParameter(3, endDate)
+        return em.createNamedQuery(Meal.ALL_BETWEEN, Meal.class)
+                .setParameter("user_id", userId)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
                 .getResultList();
-}
-
-    private synchronized Map<String, Object> setUserIdToQuery(Integer userId) {
-        map.clear();
-        map.put("user_id", userId);
-        return map;
     }
 }

@@ -1,22 +1,30 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import ru.javawebinar.topjava.TestWatcherUnit;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashMap;
+import java.util.Map;
 
+import static ru.javawebinar.topjava.MealTestData.assertMatch;
 import static ru.javawebinar.topjava.MealTestData.*;
-import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
-import static ru.javawebinar.topjava.UserTestData.USER_ID;
+import static ru.javawebinar.topjava.UserTestData.*;
 
 @ContextConfiguration({
         "classpath:spring/spring-app.xml",
@@ -26,12 +34,34 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
 
+    private static Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+
     static {
         SLF4JBridgeHandler.install();
     }
 
+    private static Map<String, Long> stat;
+
+    @BeforeClass
+    public static void startStatHandle() {
+        stat = new HashMap<>();
+    }
+
+    @AfterClass
+    public static void endStatHandle() {
+        TestWatcherUnit.printStatistics(log, stat);
+    }
+
     @Autowired
     private MealService service;
+
+    @Rule
+    public TestWatcherUnit twu = new TestWatcherUnit(stat);
+
+    @AfterClass
+    public static void endStatisticHandle() {
+
+    }
 
     @Test
     public void delete() throws Exception {
@@ -55,24 +85,28 @@ public class MealServiceTest {
 
     @Test
     public void get() throws Exception {
+        ADMIN_MEAL1.setUser(ADMIN);
         Meal actual = service.get(ADMIN_MEAL_ID, ADMIN_ID);
         assertMatch(actual, ADMIN_MEAL1);
     }
 
     @Test(expected = NotFoundException.class)
     public void getNotFound() throws Exception {
+        MEAL1.setUser(USER);
         service.get(MEAL1_ID, ADMIN_ID);
     }
 
     @Test
     public void update() throws Exception {
         Meal updated = getUpdated();
+        updated.setUser(USER);
         service.update(updated, USER_ID);
         assertMatch(service.get(MEAL1_ID, USER_ID), updated);
     }
 
     @Test(expected = NotFoundException.class)
     public void updateNotFound() throws Exception {
+        MEAL1.setUser(USER);
         service.update(MEAL1, ADMIN_ID);
     }
 

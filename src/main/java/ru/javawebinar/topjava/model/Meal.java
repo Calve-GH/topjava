@@ -9,13 +9,13 @@ import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+
 @SuppressWarnings("JpaQlInspection")
 @NamedQueries({
-        @NamedQuery(name = Meal.DELETE, query = "DELETE FROM Meal m WHERE m.id=:id AND m.user=:user_id"),
-        @NamedQuery(name = Meal.UPDATE, query = "UPDATE Meal m SET m.description=:description, m.calories=:calories, m.dateTime=:date_time WHERE m.id=:id AND m.user=:user_id"),
-        @NamedQuery(name = Meal.READ, query = "SELECT m FROM Meal m WHERE m.id=:id AND m.user=:user_id"),
-        @NamedQuery(name = Meal.ALL_SORTED, query = "SELECT m FROM Meal m WHERE m.user=:user_id ORDER BY m.dateTime DESC"),
-        @NamedQuery(name = Meal.ALL_BETWEEN, query = "SELECT m FROM Meal m WHERE m.id=?1  AND m.dateTime BETWEEN  ?2 AND ?3 ORDER BY m.dateTime DESC")
+        @NamedQuery(name = Meal.DELETE, query = "DELETE FROM Meal m WHERE m.id=:id AND m.user.id=:user_id"),
+        @NamedQuery(name = Meal.READ, query = "SELECT m FROM Meal m LEFT JOIN FETCH m.user WHERE m.id=:id AND m.user.id=:user_id"),
+        @NamedQuery(name = Meal.ALL_SORTED, query = "SELECT m FROM Meal m LEFT JOIN FETCH m.user WHERE m.user.id=:user_id ORDER BY m.dateTime DESC"),
+        @NamedQuery(name = Meal.ALL_BETWEEN, query = "SELECT m FROM Meal m LEFT JOIN FETCH m.user WHERE m.user.id=:user_id AND m.dateTime BETWEEN :startDate AND :endDate ORDER BY m.dateTime DESC")
 })
 @Entity
 @Table(name = "meals", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "date_time"},
@@ -23,13 +23,12 @@ import java.time.LocalTime;
 public class Meal extends AbstractBaseEntity {
 
     public static final String DELETE = "Meal.delete";
-    public static final String UPDATE = "Meal.update";
     public static final String READ = "Meal.read";
     public static final String ALL_SORTED = "Meal.getAllSorted";
     public static final String ALL_BETWEEN = "Meal.getAllBetween";
 
     @NotNull
-    @Column(name = "date_time", nullable = false)//, columnDefinition = "timestamp default now()" TODO
+    @Column(name = "date_time", nullable = false)
     private LocalDateTime dateTime;
 
     @Column(name = "description", nullable = false)
