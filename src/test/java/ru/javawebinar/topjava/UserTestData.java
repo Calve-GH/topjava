@@ -5,6 +5,7 @@ import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static ru.javawebinar.topjava.TestUtil.readFromJsonMvcResult;
@@ -31,7 +32,8 @@ public class UserTestData {
     }
 
     public static ResultMatcher contentJson(User... expected) {
-        return result -> assertMatch(readListFromJsonMvcResult(result, User.class), List.of(expected));
+        ResultMatcher resultMatcher = result -> assertMatch(readListFromJsonMvcResult(result, User.class), List.of(expected));
+        return resultMatcher;
     }
 
     public static ResultMatcher contentJson(User expected) {
