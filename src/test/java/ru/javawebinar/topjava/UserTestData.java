@@ -3,6 +3,7 @@ package ru.javawebinar.topjava;
 import org.springframework.test.web.servlet.ResultMatcher;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
+import ru.javawebinar.topjava.to.MealTo;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,5 +39,9 @@ public class UserTestData {
 
     public static ResultMatcher contentJson(User expected) {
         return result -> assertMatch(readFromJsonMvcResult(result, User.class), expected);
+    }
+
+    public static void assertMatchTo(Iterable<MealTo> actual, Iterable<MealTo> expected) {
+        assertThat(actual).usingElementComparatorIgnoringFields("user").isEqualTo(expected);
     }
 }
