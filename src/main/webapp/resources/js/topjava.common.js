@@ -1,5 +1,3 @@
-let context, form;
-
 function makeEditable(ctx) {
     context = ctx;
     form = $('#detailsForm');
@@ -49,8 +47,6 @@ function save() {
         successNoty("Saved");
     });
 }
-
-let failedNote;
 
 function closeNoty() {
     if (failedNote) {
