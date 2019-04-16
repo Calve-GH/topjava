@@ -53,6 +53,8 @@ function save() {
     });
 }
 
+var failedNote;
+
 function closeNoty() {
     if (failedNote) {
         failedNote.close();
